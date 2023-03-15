@@ -3,6 +3,7 @@ package io.lucasprojects.granna.domain.model;
 import java.util.Date;
 import java.util.List;
 
+import io.lucasprojects.granna.domain.Enum.TitleType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -40,6 +41,7 @@ public class Title {
     @Column(nullable = false)
     private Double value;
 
+    private TitleType titleType;
     private Date registerDate;
     private Date referenceDate;
     private Date dueDate;
@@ -88,6 +90,14 @@ public class Title {
 
     public void setValue(Double value) {
         this.value = value;
+    }
+
+    public TitleType getTitleType() {
+        return titleType;
+    }
+
+    public void setTitleType(TitleType titleType) {
+        this.titleType = titleType;
     }
 
     public Date getRegisterDate() {
