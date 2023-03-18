@@ -9,6 +9,7 @@ public class UserResponseDTO {
     private String name;
     private String profile;
     private Date inativationDate;
+    private Date signUpDate;
 
     public UserResponseDTO() { }
 
@@ -50,6 +51,14 @@ public class UserResponseDTO {
 
     public void setInativationDate(Date inativationDate) {
         this.inativationDate = inativationDate;
+    }
+
+    public Date getSignUpDate() {
+        return signUpDate;
+    }
+
+    public void setSignUpDate(Date signUpDate) {
+        this.signUpDate = signUpDate;
     }
 
 }

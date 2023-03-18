@@ -29,15 +29,15 @@ public class UserService implements ICRUDService<UserRequestDTO, UserResponseDTO
     public List<UserResponseDTO> getAll() {
         List<User> users = userRepository.findAll();
         return users.stream()
-                    .map(user -> mapper.map(users, UserResponseDTO.class))
-                    .collect(Collectors.toList());
+                .map(user -> mapper.map(users, UserResponseDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Override
     public UserResponseDTO getById(Long id) {
         Optional<User> user = userRepository.findById(id);
 
-        if(user.isEmpty())
+        if (user.isEmpty())
             throw new ResourceNotFoundException("Unable to find user with id: " + id);
 
         return mapper.map(user.get(), UserResponseDTO.class);
@@ -47,9 +47,17 @@ public class UserService implements ICRUDService<UserRequestDTO, UserResponseDTO
     public UserResponseDTO add(UserRequestDTO dto) {
         validateUser(dto);
 
-        User user = mapper.map(dto, User.class);
-        user = userRepository.save(user);
+        Optional<User> optUser = userRepository.findByEmail(dto.getEmail());
+        if (optUser.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "There is already a user registered with the email: " + dto.getEmail());
+        }
 
+        User user = mapper.map(dto, User.class);
+
+        user.setSignUpDate(new Date());
+
+        user = userRepository.save(user);
         return mapper.map(user, UserResponseDTO.class);
     }
 
@@ -62,6 +70,7 @@ public class UserService implements ICRUDService<UserRequestDTO, UserResponseDTO
 
         user.setId(id);
         user.setInativationDate(userFound.getInativationDate());
+        user.setSignUpDate(userFound.getSignUpDate());
 
         user = userRepository.save(user);
         return mapper.map(user, UserResponseDTO.class);
@@ -69,17 +78,21 @@ public class UserService implements ICRUDService<UserRequestDTO, UserResponseDTO
 
     @Override
     public void delete(Long id) {
-        UserResponseDTO userFound = getById(id);
-        User user = mapper.map(userFound, User.class);
 
+        Optional<User> optUser = userRepository.findById(id);
+
+        if (optUser.isEmpty())
+            throw new ResourceNotFoundException("Unable to find user with id: " + id);
+
+        User user = optUser.get();
         user.setInativationDate(new Date());
 
         userRepository.save(user);
     }
 
     private void validateUser(UserRequestDTO dto) {
-        if(dto.getEmail() == null || dto.getPassword() == null)
+        if (dto.getEmail() == null || dto.getPassword() == null)
             throw new ResourceBadRequestException("Email or password is null.");
     }
-    
+
 }
