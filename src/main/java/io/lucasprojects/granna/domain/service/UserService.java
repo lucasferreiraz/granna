@@ -1,11 +1,13 @@
 package io.lucasprojects.granna.domain.service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import io.lucasprojects.granna.domain.exception.ResourceBadRequestException;
 import io.lucasprojects.granna.domain.exception.ResourceNotFoundException;
@@ -14,6 +16,7 @@ import io.lucasprojects.granna.domain.repository.UserRepository;
 import io.lucasprojects.granna.dto.User.UserRequestDTO;
 import io.lucasprojects.granna.dto.User.UserResponseDTO;
 
+@Service
 public class UserService implements ICRUDService<UserRequestDTO, UserResponseDTO> {
 
     @Autowired
@@ -42,9 +45,7 @@ public class UserService implements ICRUDService<UserRequestDTO, UserResponseDTO
 
     @Override
     public UserResponseDTO add(UserRequestDTO dto) {
-
-        if(dto.getEmail() == null || dto.getPassword() == null)
-            throw new ResourceBadRequestException("Email or password is null.");
+        validateUser(dto);
 
         User user = mapper.map(dto, User.class);
         user = userRepository.save(user);
@@ -54,19 +55,31 @@ public class UserService implements ICRUDService<UserRequestDTO, UserResponseDTO
 
     @Override
     public UserResponseDTO update(Long id, UserRequestDTO dto) {
-        getById(id);
+        UserResponseDTO userFound = getById(id);
+        validateUser(dto);
 
         User user = mapper.map(dto, User.class);
 
         user.setId(id);
+        user.setInativationDate(userFound.getInativationDate());
+
         user = userRepository.save(user);
         return mapper.map(user, UserResponseDTO.class);
     }
 
     @Override
     public void delete(Long id) {
-        getById(id);
-        userRepository.deleteById(id);
+        UserResponseDTO userFound = getById(id);
+        User user = mapper.map(userFound, User.class);
+
+        user.setInativationDate(new Date());
+
+        userRepository.save(user);
+    }
+
+    private void validateUser(UserRequestDTO dto) {
+        if(dto.getEmail() == null || dto.getPassword() == null)
+            throw new ResourceBadRequestException("Email or password is null.");
     }
     
 }
