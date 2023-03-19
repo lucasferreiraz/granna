@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 
 import io.lucasprojects.granna.domain.exception.ResourceNotFoundException;
 import io.lucasprojects.granna.domain.model.CostCenter;
@@ -15,6 +16,7 @@ import io.lucasprojects.granna.domain.repository.CostCenterRepository;
 import io.lucasprojects.granna.dto.CostCenter.CostCenterRequestDTO;
 import io.lucasprojects.granna.dto.CostCenter.CostCenterResponseDTO;
 
+@Service
 public class CostCenterService implements ICRUDService<CostCenterRequestDTO, CostCenterResponseDTO> {
 
     @Autowired
@@ -38,7 +40,7 @@ public class CostCenterService implements ICRUDService<CostCenterRequestDTO, Cos
         if (optCostCenter.isEmpty())
             throw new ResourceNotFoundException("Unable to find CostCenter with id: " + id);
 
-        return mapper.map(optCostCenter, CostCenterResponseDTO.class);
+        return mapper.map(optCostCenter.get(), CostCenterResponseDTO.class);
     }
 
     @Override
@@ -52,7 +54,7 @@ public class CostCenterService implements ICRUDService<CostCenterRequestDTO, Cos
 
         costCenter = costCenterRepository.save(costCenter);
 
-        return mapper.map(user, CostCenterResponseDTO.class);
+        return mapper.map(costCenter, CostCenterResponseDTO.class);
     }
 
     @Override
@@ -66,7 +68,7 @@ public class CostCenterService implements ICRUDService<CostCenterRequestDTO, Cos
 
         costCenter = costCenterRepository.save(costCenter);
 
-        return mapper.map(user, CostCenterResponseDTO.class);
+        return mapper.map(costCenter, CostCenterResponseDTO.class);
     }
 
     @Override
