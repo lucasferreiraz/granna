@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import io.lucasprojects.granna.domain.exception.ResourceBadRequestException;
@@ -24,6 +25,9 @@ public class UserService implements ICRUDService<UserRequestDTO, UserResponseDTO
 
     @Autowired
     private ModelMapper mapper;
+
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public List<UserResponseDTO> getAll() {
@@ -43,17 +47,29 @@ public class UserService implements ICRUDService<UserRequestDTO, UserResponseDTO
         return mapper.map(user.get(), UserResponseDTO.class);
     }
 
+    public UserResponseDTO getByEmail(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if (user.isEmpty())
+            throw new ResourceNotFoundException("Unable to find user with email: " + email);
+
+        return mapper.map(user.get(), UserResponseDTO.class);
+    }
+
     @Override
     public UserResponseDTO add(UserRequestDTO dto) {
         validateUser(dto);
 
         Optional<User> optUser = userRepository.findByEmail(dto.getEmail());
-        if (optUser.isEmpty()) {
+        if (optUser.isPresent()) {
             throw new ResourceNotFoundException(
                     "There is already a user registered with the email: " + dto.getEmail());
         }
 
         User user = mapper.map(dto, User.class);
+
+        String password = passwordEncoder.encode(user.getPassword());
+        user.setPassword(password);
 
         user.setSignUpDate(new Date());
 
@@ -67,6 +83,9 @@ public class UserService implements ICRUDService<UserRequestDTO, UserResponseDTO
         validateUser(dto);
 
         User user = mapper.map(dto, User.class);
+
+        String password = passwordEncoder.encode(dto.getPassword());
+        user.setPassword(password);
 
         user.setId(id);
         user.setInativationDate(userFound.getInativationDate());
