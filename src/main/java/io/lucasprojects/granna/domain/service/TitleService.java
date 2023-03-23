@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 
 import io.lucasprojects.granna.domain.exception.ResourceBadRequestException;
 import io.lucasprojects.granna.domain.exception.ResourceNotFoundException;
@@ -17,6 +18,7 @@ import io.lucasprojects.granna.domain.repository.TitleRepository;
 import io.lucasprojects.granna.dto.Title.TitleRequestDTO;
 import io.lucasprojects.granna.dto.Title.TitleResponseDTO;
 
+@Service
 public class TitleService implements ICRUDService<TitleRequestDTO, TitleResponseDTO> {
 
     @Autowired
@@ -29,8 +31,8 @@ public class TitleService implements ICRUDService<TitleRequestDTO, TitleResponse
     public List<TitleResponseDTO> getAll() {
         List<Title> list = titleRepository.findAll();
         return list.stream()
-                    .map(title -> mapper.map(title, TitleResponseDTO.class))
-                    .collect(Collectors.toList());
+                .map(title -> mapper.map(title, TitleResponseDTO.class))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -79,6 +81,14 @@ public class TitleService implements ICRUDService<TitleRequestDTO, TitleResponse
         titleRepository.deleteById(id);
     }
 
+    public List<TitleResponseDTO> getFlowCash(String start, String end) {
+        List<Title> list = titleRepository.getCashFlowByDueDate(start, end);
+
+        return list.stream()
+                .map(title -> mapper.map(title, TitleResponseDTO.class))
+                .collect(Collectors.toList());
+    }
+
     public void validateTitle(TitleRequestDTO dto) {
         boolean hasNoType = dto.getTitleType() == null;
         boolean hasNoExpirationDate = dto.getDueDate() == null;
@@ -87,7 +97,7 @@ public class TitleService implements ICRUDService<TitleRequestDTO, TitleResponse
 
         if (hasNoDescription || hasNoExpirationDate || hasNoType || hasNoValue) {
             throw new ResourceBadRequestException(
-                "The fields: type, expiration date, value and description cannot be  null");
+                    "The fields: type, expiration date, value and description cannot be  null");
         }
     }
 
