@@ -18,10 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 import io.lucasprojects.granna.domain.service.TitleService;
 import io.lucasprojects.granna.dto.Title.TitleRequestDTO;
 import io.lucasprojects.granna.dto.Title.TitleResponseDTO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/api/title")
+@Tag(name = "Title")
 public class TitleController {
     
     @Autowired

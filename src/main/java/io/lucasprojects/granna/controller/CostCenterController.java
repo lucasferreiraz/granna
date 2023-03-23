@@ -18,10 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 import io.lucasprojects.granna.domain.service.CostCenterService;
 import io.lucasprojects.granna.dto.CostCenter.CostCenterRequestDTO;
 import io.lucasprojects.granna.dto.CostCenter.CostCenterResponseDTO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/api/costcenter")
+@Tag(name = "Cost Center")
 public class CostCenterController {
     
     @Autowired

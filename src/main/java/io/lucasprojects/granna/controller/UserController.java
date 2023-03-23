@@ -18,10 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 import io.lucasprojects.granna.domain.service.UserService;
 import io.lucasprojects.granna.dto.User.UserRequestDTO;
 import io.lucasprojects.granna.dto.User.UserResponseDTO;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @CrossOrigin("*")
 @RestController
 @RequestMapping("/api/users")
+@Tag(name = "User")
 public class UserController {
     
     @Autowired
